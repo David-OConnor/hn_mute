@@ -23,6 +23,7 @@ type MutedMap = Record<string, MutedEntry>;
   let muted: MutedMap = {};
 
   const isMutedPage = location.pathname === MUTED_PATH;
+  const isUserPage = location.pathname === "/user";
 
   const isMuted = (name: string): boolean =>
     Object.prototype.hasOwnProperty.call(muted, name);
@@ -73,7 +74,7 @@ type MutedMap = Record<string, MutedEntry>;
     const a = document.createElement("a");
 
     a.href = MUTED_PATH;
-    a.textContent = "muted users";
+    a.textContent = "muted";
     a.className = "hnmute-nav";
 
     pagetop.append(" | ", a);
@@ -205,15 +206,62 @@ type MutedMap = Record<string, MutedEntry>;
     }
   }
 
+  // Profile pages (/user?id=...): a "mute" / "unmute" row below the
+  // favorites link. The row is rebuilt on every apply so mute state and
+  // notes stay in sync with storage.
+  function renderProfileMuteRow(): void {
+    if (!isUserPage) return;
+    const name = new URLSearchParams(location.search).get("id");
+    if (!name) return;
+    const profileLink = document.querySelector("#bigbox a.hnuser");
+    const table = profileLink?.closest("table");
+    if (!table) return;
+
+    let row = table.querySelector("tr.hnmute-profile-row");
+    if (!row) {
+      row = document.createElement("tr");
+      row.className = "hnmute-profile-row";
+      row.append(document.createElement("td"), document.createElement("td"));
+      // Below the favorites link when present, otherwise at the end.
+      const fav = table.querySelector('a[href^="favorites"]')?.closest("tr");
+      if (fav) fav.after(row);
+      else (table.tBodies[0] ?? table).appendChild(row);
+    }
+
+    const td = row.lastElementChild as HTMLTableCellElement;
+    td.textContent = "";
+    const a = document.createElement("a");
+    a.href = "#";
+    a.className = "hnmute-link";
+    const u = document.createElement("u");
+    u.textContent = isMuted(name) ? "unmute" : "mute";
+    a.appendChild(u);
+    a.title = isMuted(name)
+      ? "Unmute " + name
+      : "Mute " + name + " — hide all their stories and comments";
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      // muteUser/unmuteUser call applyAll(), which re-renders this row.
+      if (isMuted(name)) unmuteUser(name);
+      else muteUser(name);
+    });
+    td.appendChild(a);
+
+    const notes = muted[name]?.notes.trim();
+    if (isMuted(name) && notes) {
+      const span = document.createElement("span");
+      span.className = "hnmute-profile-notes";
+      span.textContent = " — " + notes;
+      td.appendChild(span);
+    }
+  }
+
   function applyAll(): void {
     applyComments();
     applyStories();
     applyFatitem();
+    renderProfileMuteRow();
   }
-
-  // ------------------------------------------------------------------
-  // The "muted users" page (rendered over HN's 404 page at /muted)
-  // ------------------------------------------------------------------
 
   const NAV_LINKS = [
     ["new", "newest"],
@@ -264,9 +312,10 @@ type MutedMap = Record<string, MutedEntry>;
       '<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">' +
       "<tr>" +
       '<td style="width:18px;padding-right:4px"><a href="news"><img src="y18.svg" width="18" height="18" style="border:1px white solid;display:block"></a></td>' +
-      '<td style="line-height:12pt;height:10px"><span class="pagetop"><b class="hnname"><a href="news">Hacker News</a></b>' +
+      '<td style="line-height:12pt;height:10px"><span class="pagetop hnmute-pagetop-left"><b class="hnname"><a href="news">Hacker News</a></b>' +
       navHtml +
       ' | <span class="hnmute-topsel">muted users</span></span></td>' +
+      '<td style="text-align:right;padding-right:4px"><span class="pagetop hnmute-pagetop-right"></span></td>' +
       "</tr>" +
       "</table>" +
       "</td></tr>" +
@@ -283,6 +332,36 @@ type MutedMap = Record<string, MutedEntry>;
     document.body.appendChild(center);
 
     renderMutedList(listWrap);
+    void fillPagetopFromHN();
+  }
+
+  // The static menu above is only a fallback: it can't know the logged-in
+  // user's "threads" link or the account cell (user / karma / logout, whose
+  // logout link needs a per-session auth token). Copy those from /news.
+  async function fillPagetopFromHN(): Promise<void> {
+    try {
+      const res = await fetch("/news", { credentials: "same-origin" });
+      if (!res.ok) return;
+      const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+      const [left, right] = doc.querySelectorAll("span.pagetop");
+      const importChildren = (from: Element, into: Element): void => {
+        into.replaceChildren(
+          ...Array.from(from.childNodes, (n) => document.importNode(n, true)),
+        );
+      };
+      const leftHere = document.querySelector(".hnmute-pagetop-left");
+      if (left && leftHere) {
+        importChildren(left, leftHere);
+        const sel = document.createElement("span");
+        sel.className = "hnmute-topsel";
+        sel.textContent = "muted users";
+        leftHere.append(" | ", sel);
+      }
+      const rightHere = document.querySelector(".hnmute-pagetop-right");
+      if (right && rightHere) importChildren(right, rightHere);
+    } catch {
+      // Network failure — keep the static fallback menu.
+    }
   }
 
   function renderMutedList(wrap: HTMLElement): void {

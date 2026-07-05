@@ -4,6 +4,12 @@ a.hnmute-unmute {
   cursor: pointer;
 }
 
+/* ---- mute reason shown on profile pages ---- */
+.hnmute-profile-notes {
+  color: #828282;
+  font-style: italic;
+}
+
 /* ---- rows hidden entirely ---- */
 tr.hnmute-hidden {
   display: none !important;
@@ -23,16 +29,43 @@ tr.hnmute-muted-row td.votelinks {
 }
 
 /* ---- muted users page (rendered at /muted) ---- */
-/* Fallback styling in case news.css hasn't loaded yet */
+/* HN serves /muted as a text/plain 404, so news.css doesn't reliably
+   apply there. Replicate the relevant news.css rules, scoped to the
+   muted page, so the header and links render like a normal HN page. */
 body.hnmute-page,
 body.hnmute-page td,
 body.hnmute-page input {
   font-family: Verdana, Geneva, sans-serif;
   font-size: 10pt;
 }
+body.hnmute-page,
+body.hnmute-page td {
+  color: #828282;
+}
 body.hnmute-page {
   margin: 8px;
   padding: 0;
+}
+body.hnmute-page a:link {
+  color: #000000;
+  text-decoration: none;
+}
+body.hnmute-page a:visited {
+  color: #828282;
+  text-decoration: none;
+}
+body.hnmute-page .pagetop {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 10pt;
+  color: #222222;
+  line-height: 12px;
+}
+body.hnmute-page .pagetop a:visited {
+  color: #000000;
+}
+body.hnmute-page .hnname {
+  margin-left: 1px;
+  margin-right: 5px;
 }
 .hnmute-topsel {
   color: #ffffff;
