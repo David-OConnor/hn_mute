@@ -9,8 +9,6 @@ interface MutedEntry {
 type MutedMap = Record<string, MutedEntry>;
 
 (() => {
-  "use strict";
-
   const STORAGE_KEY = "mutedUsers";
   const MUTED_PATH = "/muted";
 
@@ -276,7 +274,6 @@ type MutedMap = Record<string, MutedEntry>;
   function renderMutedPage(): void {
     document.title = "Muted Users | Hacker News";
 
-    // HN's 404 is plain text, so pull in the real stylesheet + favicon.
     if (!document.querySelector('link[rel="stylesheet"]')) {
       const css = document.createElement("link");
       css.rel = "stylesheet";
@@ -359,9 +356,7 @@ type MutedMap = Record<string, MutedEntry>;
       }
       const rightHere = document.querySelector(".hnmute-pagetop-right");
       if (right && rightHere) importChildren(right, rightHere);
-    } catch {
-      // Network failure — keep the static fallback menu.
-    }
+    } catch {}
   }
 
   function renderMutedList(wrap: HTMLElement): void {
@@ -386,12 +381,14 @@ type MutedMap = Record<string, MutedEntry>;
       const tdUser = document.createElement("td");
       tdUser.className = "hnmute-user";
       const link = document.createElement("a");
+
       link.href = "user?id=" + encodeURIComponent(name);
       link.textContent = name;
       tdUser.appendChild(link);
 
       const tdUnmute = document.createElement("td");
       const un = document.createElement("a");
+
       un.href = "#";
       un.textContent = "unmute";
       un.className = "hnmute-unmute";
@@ -400,14 +397,17 @@ type MutedMap = Record<string, MutedEntry>;
         unmuteUser(name);
         renderMutedList(wrap);
       });
+
       tdUnmute.appendChild(un);
 
       const tdNotes = document.createElement("td");
       const input = document.createElement("input");
+
       input.type = "text";
       input.className = "hnmute-notes-input";
       input.placeholder = "notes";
       input.value = muted[name]?.notes ?? "";
+
       let timer: number | undefined;
       const save = (): void => {
         if (isMuted(name)) {
