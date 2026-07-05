@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "HN Mute",
   "version": "1.0.0",
-  "description": "Adds a \"mute\" link next to every username on Hacker News. Muted users' stories and comments are hidden; manage them on the \"muted users\" page.",
+  "description": "Adds a \"mute\" link next to usernames on Hacker News. Muted users' comments and submissions are hidden",
   "permissions": ["storage"],
   "content_scripts": [
     {

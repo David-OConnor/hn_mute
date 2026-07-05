@@ -3,6 +3,7 @@
 A minimal Chrome and Firefox extension that lets you mute users on [Hacker News](https://news.ycombinator.com).
 
 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/hn-mute_/)
+[Chrome](https://chromewebstore.google.com/detail/...)
 
 Can mute users. Adds a few UI elements to HN to allow muting users by clicking a link next to comments and submissions, and managing your list of muted users. If enough people end up using this, I will integrate a database which can be used to automatically users who others with simular tastes as you muted.
 
