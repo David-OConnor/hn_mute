@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "HN Mute",
+  "version": "1.0.0",
+  "description": "Adds a \"mute\" link next to every username on Hacker News. Muted users' stories and comments are hidden; manage them on the \"muted users\" page.",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://news.ycombinator.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "hn-mute@davidoconnor",
+      "strict_min_version": "109.0"
+    }
+  }
+}

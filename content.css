@@ -1,0 +1,58 @@
+/* ---- "mute" / "unmute" links ---- */
+a.hnmute-link,
+a.hnmute-unmute {
+  cursor: pointer;
+}
+
+/* ---- rows hidden entirely ---- */
+tr.hnmute-hidden {
+  display: none !important;
+}
+
+/* ---- muted comment kept as a placeholder (it has visible replies) ---- */
+tr.hnmute-muted-row td.default > *:not(.hnmute-placeholder) {
+  display: none !important;
+}
+tr.hnmute-muted-row td.votelinks {
+  visibility: hidden !important;
+}
+.hnmute-placeholder {
+  color: #828282;
+  font-style: italic;
+  padding: 2px 0;
+}
+
+/* ---- muted users page (rendered at /muted) ---- */
+/* Fallback styling in case news.css hasn't loaded yet */
+body.hnmute-page,
+body.hnmute-page td,
+body.hnmute-page input {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 10pt;
+}
+body.hnmute-page {
+  margin: 8px;
+  padding: 0;
+}
+.hnmute-topsel {
+  color: #ffffff;
+}
+.hnmute-content {
+  padding: 10px;
+}
+.hnmute-table td {
+  padding: 3px 14px 3px 0;
+}
+.hnmute-user a {
+  font-weight: bold;
+}
+.hnmute-notes-input {
+  width: 320px;
+  font-size: 9pt;
+  padding: 2px 4px;
+  border: 1px solid #828282;
+  background-color: #ffffff;
+}
+.hnmute-empty {
+  color: #828282;
+}
