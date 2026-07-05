@@ -1,8 +1,8 @@
 # HN Mute
 
-A Chrome and Firefox extension that lets you mute users on [Hacker News](https://news.ycombinator.com).
+A minimal Chrome and Firefox extension that lets you mute users on [Hacker News](https://news.ycombinator.com).
 
-Can mute users. If enough people end up using this, I will integrate a database which can be used to automatically users who others with simular tastes as you muted.
+Can mute users. Adds a few UI elements to HN to allow muting users by clicking a link next to comments and submissions, and managing your list of muted users. If enough people end up using this, I will integrate a database which can be used to automatically users who others with simular tastes as you muted.
 
 ![Example of how to mute users](/screenshots/comment_example_0.png)
 
@@ -22,6 +22,7 @@ Examples of why you may wish to mute a user:
 Mute lists are stored locally, in your browser's extension's sync storage (chrome.storage.sync / browser.storage.sync). Your browser will sync this across all devices in which you're signed in, and with other opened tabs. I may eventually host this in a remote database, in order to enable the network effects described above.
 
 Mildly inspired by required measures in _[Fall; or, Dodge in Hell](https://en.wikipedia.org/wiki/Fall;_or,_Dodge_in_Hell)._
+
 
 ## Build
 
