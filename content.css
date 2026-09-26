@@ -4,12 +4,6 @@ a.hnmute-unmute {
   cursor: pointer;
 }
 
-/* ---- mute reason shown on profile pages ---- */
-.hnmute-profile-notes {
-  color: #828282;
-  font-style: italic;
-}
-
 /* ---- rows hidden entirely ---- */
 tr.hnmute-hidden {
   display: none !important;

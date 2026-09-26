@@ -204,6 +204,35 @@ type MutedMap = Record<string, MutedEntry>;
     }
   }
 
+  // Debounced editor for a muted user's notes, shared by the muted page
+  // list and the profile row.
+  function createNotesInput(name: string): HTMLInputElement {
+    const input = document.createElement("input");
+
+    input.type = "text";
+    input.className = "hnmute-notes-input";
+    input.placeholder = "notes";
+    input.value = muted[name]?.notes ?? "";
+
+    let timer: number | undefined;
+    const save = (): void => {
+      if (isMuted(name)) {
+        muted[name].notes = input.value;
+        saveMuted();
+      }
+    };
+    input.addEventListener("input", () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(save, 600); // debounce to respect storage.sync write quotas
+    });
+    input.addEventListener("change", () => {
+      clearTimeout(timer);
+      save();
+    });
+
+    return input;
+  }
+
   // Profile pages (/user?id=...): a "mute" / "unmute" row below the
   // favorites link. The row is rebuilt on every apply so mute state and
   // notes stay in sync with storage.
@@ -245,12 +274,8 @@ type MutedMap = Record<string, MutedEntry>;
     });
     td.appendChild(a);
 
-    const notes = muted[name]?.notes.trim();
-    if (isMuted(name) && notes) {
-      const span = document.createElement("span");
-      span.className = "hnmute-profile-notes";
-      span.textContent = " — " + notes;
-      td.appendChild(span);
+    if (isMuted(name)) {
+      td.append(" ", createNotesInput(name));
     }
   }
 
@@ -401,29 +426,7 @@ type MutedMap = Record<string, MutedEntry>;
       tdUnmute.appendChild(un);
 
       const tdNotes = document.createElement("td");
-      const input = document.createElement("input");
-
-      input.type = "text";
-      input.className = "hnmute-notes-input";
-      input.placeholder = "notes";
-      input.value = muted[name]?.notes ?? "";
-
-      let timer: number | undefined;
-      const save = (): void => {
-        if (isMuted(name)) {
-          muted[name].notes = input.value;
-          saveMuted();
-        }
-      };
-      input.addEventListener("input", () => {
-        clearTimeout(timer);
-        timer = window.setTimeout(save, 600); // debounce to respect storage.sync write quotas
-      });
-      input.addEventListener("change", () => {
-        clearTimeout(timer);
-        save();
-      });
-      tdNotes.appendChild(input);
+      tdNotes.appendChild(createNotesInput(name));
 
       tr.append(tdUser, tdUnmute, tdNotes);
       table.appendChild(tr);
@@ -444,6 +447,9 @@ type MutedMap = Record<string, MutedEntry>;
       // (which also fires onChanged) doesn't blow away the input focus.
       const wrap = document.querySelector<HTMLElement>(".hnmute-list");
       if (wrap && namesChanged) renderMutedList(wrap);
+    } else if (isUserPage && !namesChanged) {
+      // Same on profile pages: a notes save must not rebuild the row
+      // (and its input) mid-typing.
     } else {
       applyAll();
     }
